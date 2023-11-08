@@ -53,3 +53,9 @@ async function runTrace() {
         status.innerText = "Finished";
     }
 }
+
+async function onInputKeyPress(event) {
+    if (event.keyCode == 13) {
+        await runTrace();
+    }
+}
