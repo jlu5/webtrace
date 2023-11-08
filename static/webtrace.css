@@ -1,0 +1,19 @@
+.status-null {
+    color: grey;
+}
+
+.status-error {
+    color: darkred;
+}
+
+.status-done {
+    color: darkgreen;
+}
+
+.status-working {
+    color: darkgoldenrod;
+}
+
+.monospace {
+    font-family: monospace;
+}
