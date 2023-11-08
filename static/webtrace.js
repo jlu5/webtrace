@@ -9,12 +9,21 @@ const updateWorkingStatus = () => {
 }
 let activeLoop = null;
 
-async function runTrace() {
+function stopTrace(updateStatus) {
     if (activeLoop) {
         console.debug(`Clearing old trace loop ${activeLoop}`);
         clearInterval(activeLoop);
         activeLoop = null;
+        if (updateStatus) {
+            const status = document.getElementById("status");
+            status.classList = "status-error";
+            status.innerText = "Aborted";
+        }
     }
+}
+
+async function runTrace() {
+    stopTrace(false);
     const output = document.getElementById("output");
     const status = document.getElementById("status");
     const target = document.getElementById("target_input").value;
@@ -36,7 +45,7 @@ async function runTrace() {
 
     for await (const buf of response.body) {
         if (activeLoop != thisLoop) {
-            console.debug(`Stopping old trace ${thisLoop} for ${target}`);
+            console.debug(`Stopping old trace loop ${thisLoop} for ${target}`);
             return;
         }
         output.innerText += String.fromCharCode(...buf);
@@ -52,6 +61,7 @@ async function runTrace() {
         status.classList = "status-done";
         status.innerText = "Finished";
     }
+    activeLoop = null;
 }
 
 async function onInputKeyPress(event) {

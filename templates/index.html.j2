@@ -12,6 +12,7 @@
 <input type="text" id="target_input" name="target"
        placeholder="e.g. 172.20.0.53" onkeypress="onInputKeyPress(event)">
 <button onclick="runTrace()">Submit</button>
+<button onclick="stopTrace(true)">Stop</button>
 
 <noscript><p class="status-error">Interactive mode requires JavaScript!</p></noscript>
 
@@ -24,7 +25,7 @@
 <ul>
     <li>
     <code><a href="trace?target=8.8.8.8">/trace?target=8.8.8.8</a></code>
-    - trace to the specified target
+    - (streamed) trace to the specified target
     </li>
 </ul>
 
