@@ -148,8 +148,12 @@ async function runTrace() {
         const str = String.fromCharCode(...buf);
         if (action == "mtr") {
             for (let line of str.split('\n')) {
-                if (line.trim()) {
+                console.log("mtr line", line);
+                if (/^\d+? /.test(line)) {
                     parseMtr(line);
+                } else if (line.trim()) {
+                    output.innerText += line;
+                    output.innerText += '\n';
                 }
             }
         } else {
