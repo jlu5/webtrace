@@ -14,13 +14,13 @@ Action:
 <input type="radio" id="action_ping" name="action" value="ping" onkeypress="onInputKeyPress(event)">
 <label for="action_ping">Ping</label>
 <input type="radio" id="action_ping" name="action" value="mtr" onkeypress="onInputKeyPress(event)">
-<label for="action_mtr">mtr</label>
+<label for="action_mtr">mtr (beta)</label>
 <br>
 
 <label for="target">Target:</label>
 <input type="text" id="target_input" name="target"
        placeholder="e.g. 172.20.0.53" onkeypress="onInputKeyPress(event)">
-<br>
+
 <button onclick="runTrace()">Submit</button>
 <button onclick="stopTrace(true)">Stop</button>
 
@@ -36,9 +36,18 @@ Action:
 <ul>
     <li>
     <code><a href="trace?target=8.8.8.8">/trace?target=8.8.8.8</a></code>
-    - (streamed) trace to the specified target
+    - traceroute to the specified target
+    </li>
+    <li>
+    <code><a href="ping?target=8.8.8.8">/ping?target=8.8.8.8</a></code>
+    - ping the specified target
+    </li>
+    <li>
+    <code><a href="mtr?target=8.8.8.8">/mtr?target=8.8.8.8</a></code>
+    - mtr to the specified target (output using mtr <a href="https://github.com/traviscross/mtr/blob/master/FORMATS">"split" format</a>)
     </li>
 </ul>
+<p>All actions support HTTP streaming - try reading them in curl or wget!</p>
 
 </div> <!-- container -->
 {% include "footer.html.j2" %}
