@@ -5,10 +5,13 @@ import os
 import subprocess
 
 import flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from streamedprocess import StreamedSubprocess
 
 app = flask.Flask(__name__)
+
 streamedprocess = StreamedSubprocess()
 
 logger = logging.getLogger('webtraceroute')
@@ -16,12 +19,21 @@ logging.basicConfig(level=logging.DEBUG)
 
 MTR_COUNT = int(os.environ.get('WEBTRACE_MTRCOUNT', 10))
 PING_COUNT = int(os.environ.get('WEBTRACE_PINGCOUNT', 4))
+RATELIMIT = os.environ.get('WEBTRACE_RATELIMIT', "10/minute")
 TIMEOUT = int(os.environ.get('WEBTRACE_TIMEOUT', 30))
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[RATELIMIT],
+    storage_uri="memory://",
+)
 
 def render_error(error_str=None):
     return flask.render_template('error.html.j2', error=error_str)
 
 @app.route("/")
+@limiter.exempt
 def index():
     return flask.render_template('index.html.j2')
 
@@ -68,6 +80,7 @@ def mtr():
     return _handle_url(get_mtr_command)
 
 @app.route('/static/<path:path>')
+@limiter.exempt
 def render_static(path):
     return flask.send_from_directory('static', path)
 

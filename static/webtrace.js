@@ -131,6 +131,7 @@ async function runTrace() {
         traceFinished = true;
         status.classList = "status-error";
         status.innerText = `ERROR: ${response.status} ${response.statusText}`;
+        await stopTrace(false);
         return;
     }
     output.innerText = "";
