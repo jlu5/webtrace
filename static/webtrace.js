@@ -69,3 +69,13 @@ async function onInputKeyPress(event) {
         await runTrace();
     }
 }
+
+async function doInit() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const target = urlParams.get('target');
+    if (target) {
+        const targetInput = document.getElementById("target_input");
+        targetInput.value = target;
+        await runTrace();
+    }
+}
