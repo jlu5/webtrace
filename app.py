@@ -14,6 +14,7 @@ streamedprocess = StreamedSubprocess()
 logger = logging.getLogger('webtraceroute')
 logging.basicConfig(level=logging.DEBUG)
 
+MTR_COUNT = int(os.environ.get('WEBTRACE_MTRCOUNT', 10))
 PING_COUNT = int(os.environ.get('WEBTRACE_PINGCOUNT', 4))
 TIMEOUT = int(os.environ.get('WEBTRACE_TIMEOUT', 30))
 
@@ -45,6 +46,9 @@ def get_ping_command(target):
         return ['ping', '-n', str(PING_COUNT), target]
     return ['ping', '-c', str(PING_COUNT), '--', target]
 
+def get_mtr_command(target):
+    return ['mtr', '-p', '-b', '-c', str(MTR_COUNT), '--', target]
+
 def _handle_url(get_command_func):
     if target := flask.request.args.get('target'):
         cmd = get_command_func(target)
@@ -58,6 +62,10 @@ def trace():
 @app.route("/ping")
 def ping():
     return _handle_url(get_ping_command)
+
+@app.route("/mtr")
+def mtr():
+    return _handle_url(get_mtr_command)
 
 @app.route('/static/<path:path>')
 def render_static(path):

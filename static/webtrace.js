@@ -22,20 +22,110 @@ async function stopTrace(updateStatus) {
     }
 }
 
+const MTR_MAX_HOPS = 30;
+let mtrContext = null;
+class MtrContext {
+    constructor() {
+        this.seenHopsPerIndex = {};
+        for (let i=0; i<MTR_MAX_HOPS; i++) {
+            this.seenHopsPerIndex[i] = new Map();
+        }
+    }
+}
+
+function addMtrRow(parent, index, cells) {
+    let currLength = parent.children.length;
+    // mtr can skip hops - add lines for these if applicable
+    while (currLength < index) {
+        addMtrRow(parent, currLength, [currLength, '*']);
+        currLength++;
+    }
+    let row = parent.children[index];
+    if (!row) {
+        row = document.createElement(index ? "tr" : "thead");
+        parent.appendChild(row);
+    }
+    row.textContent = '';
+    for (let cell of cells) {
+        const td = document.createElement(index ? "td" : "th");
+        if (cell instanceof Element) {
+            td.appendChild(cell);
+        } else {
+            const tdTextNode = document.createTextNode(cell);
+            td.appendChild(tdTextNode);
+        }
+        row.appendChild(td);
+    }
+}
+
+function parseMtr(mtrSplitLine) {
+    // This uses the mtr "split" format with IPs (mtr -p -b), as documented at
+    // https://github.com/traviscross/mtr/blob/master/FORMATS
+    if (mtrContext == null) {
+        console.error(`mtrContext null, line: ${mtrSplitLine}`);
+        return;
+    }
+    const parts = mtrSplitLine.split(' ');
+
+    let i = 0;
+    // mtr report format for reference:
+    // HOST: xxxxxx Loss%   Snt   Last   Avg  Best  Wrst StDev
+    const hopIndex = parts[i++];
+    const hostname = parts[i++];
+    const ip = parts[i++];
+    const lossPct = parts[i++];
+    const rcvdPkts = parts[i++];
+    const sentPkts = parts[i++];
+    const bestRtt = parts[i++];
+    const avgRtt = parts[i++];
+    const worstRtt = parts[i++];
+
+    mtrContext.seenHopsPerIndex[hopIndex].set(ip, hostname);
+
+    // Render the line
+    let mtrOutput = document.getElementById('mtr_output');
+    const allHosts = document.createElement('div');
+
+    let first = true;
+    for (const [ip, host] of mtrContext.seenHopsPerIndex[hopIndex].entries()) {
+        let displayedHost = host;
+        if (ip != host) {
+            displayedHost = `${host} [${ip}]`;
+        }
+        const textNode = document.createTextNode(displayedHost);
+        if (!first) {
+            allHosts.appendChild(document.createElement('br'));
+        }
+        first = false;
+        allHosts.appendChild(textNode);
+    }
+
+    addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
+}
+
 async function runTrace() {
     const output = document.getElementById("output");
     const status = document.getElementById("status");
     const target = document.getElementById("target_input").value;
-    console.debug(`Starting trace to ${target}`);
 
-    const action = document.querySelector('input[name="action"]:checked');
+    let action = document.querySelector('input[name="action"]:checked');
     if (!action) {
         status.classList = "status-error";
         status.innerText = `ERROR: No action specified`;
         return;
     }
+    action = action.value;
+    console.debug(`Starting ${action} to ${target}`);
+    const mtrOutputContainer = document.getElementById('mtr_output');
+    mtrOutputContainer.textContent = '';
+    if (action == "mtr") {
+        mtrContext = new MtrContext();
+        addMtrRow(mtrOutputContainer, 0, [
+            "Hop#", "Hostname/IP", "Loss%", "Sent", "Last", "Avg", "Best", "Worst"
+        ]);
+    }
 
-    const response = await fetch(`/${action.value}?target=${encodeURIComponent(target)}`)
+    const response = await fetch(`/${action}?target=${encodeURIComponent(target)}`)
 
     if (!response.ok) {
         traceFinished = true;
@@ -55,7 +145,16 @@ async function runTrace() {
             console.debug(`Stopping old trace loop ${thisLoop} for ${target}`);
             return;
         }
-        output.innerText += String.fromCharCode(...buf);
+        const str = String.fromCharCode(...buf);
+        if (action == "mtr") {
+            for (let line of str.split('\n')) {
+                if (line.trim()) {
+                    parseMtr(line);
+                }
+            }
+        } else {
+            output.innerText += str;
+        }
     }
     clearInterval(activeLoop);
     if (output.innerText.includes('ERROR:')) {

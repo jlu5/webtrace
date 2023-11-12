@@ -13,6 +13,8 @@ Action:
 <label for="action_trace">Traceroute</label>
 <input type="radio" id="action_ping" name="action" value="ping" onkeypress="onInputKeyPress(event)">
 <label for="action_ping">Ping</label>
+<input type="radio" id="action_ping" name="action" value="mtr" onkeypress="onInputKeyPress(event)">
+<label for="action_mtr">mtr</label>
 <br>
 
 <label for="target">Target:</label>
@@ -26,8 +28,9 @@ Action:
 
 <div class="monospace">
 <p>Status: <span id="status" class="status-null">Not started</span></p>
-</div>
 <pre id="output" class="monospace"></pre>
+<table id="mtr_output"></table>
+</div>
 
 <h2>API documentation</h2>
 <ul>
