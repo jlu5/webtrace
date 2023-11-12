@@ -9,7 +9,7 @@ const updateWorkingStatus = () => {
 }
 let activeLoop = null;
 
-function stopTrace(updateStatus) {
+async function stopTrace(updateStatus) {
     if (activeLoop) {
         console.debug(`Clearing old trace loop ${activeLoop}`);
         clearInterval(activeLoop);
@@ -23,7 +23,6 @@ function stopTrace(updateStatus) {
 }
 
 async function runTrace() {
-    stopTrace(false);
     const output = document.getElementById("output");
     const status = document.getElementById("status");
     const target = document.getElementById("target_input").value;
@@ -48,6 +47,7 @@ async function runTrace() {
 
     status.classList = "status-working";
     status.innerText = "Working";
+    await stopTrace(false);
     const thisLoop = activeLoop = setInterval(updateWorkingStatus, 200);
 
     for await (const buf of response.body) {
