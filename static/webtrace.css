@@ -17,3 +17,8 @@
 .monospace {
     font-family: monospace;
 }
+
+.footer {
+    text-align: center;
+    font-size: small;
+}
