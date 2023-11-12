@@ -14,6 +14,7 @@ streamedprocess = StreamedSubprocess()
 logger = logging.getLogger('webtraceroute')
 logging.basicConfig(level=logging.DEBUG)
 
+PING_COUNT = int(os.environ.get('WEBTRACE_PINGCOUNT', 4))
 TIMEOUT = int(os.environ.get('WEBTRACE_TIMEOUT', 30))
 
 def render_error(error_str=None):
@@ -22,11 +23,6 @@ def render_error(error_str=None):
 @app.route("/")
 def index():
     return flask.render_template('index.html.j2')
-
-def get_trace_command(target):
-    if os.name == 'nt':
-        return ['tracert', target]
-    return ['traceroute', '--', target]
 
 def run_streamed_process(target):
     try:
@@ -39,12 +35,29 @@ def run_streamed_process(target):
         logger.exception(e)
         yield f'\nERROR: {e.cmd[0]} exited with status {e.returncode}'
 
+def get_trace_command(target):
+    if os.name == 'nt':
+        return ['tracert', target]
+    return ['traceroute', '--', target]
+
+def get_ping_command(target):
+    if os.name == 'nt':
+        return ['ping', '-n', str(PING_COUNT), target]
+    return ['ping', '-c', str(PING_COUNT), '--', target]
+
+def _handle_url(get_command_func):
+    if target := flask.request.args.get('target'):
+        cmd = get_command_func(target)
+        return run_streamed_process(cmd), {"Content-Type": "text/plain"}
+    return 'ERROR: No target specified', 400
+
 @app.route("/trace")
 def trace():
-    if target := flask.request.args.get('target'):
-        cmd = get_trace_command(target)
-        return run_streamed_process(cmd), {"Content-Type": "text/plain"}
-    return 'ERROR: No traceroute target specified', 400
+    return _handle_url(get_trace_command)
+
+@app.route("/ping")
+def ping():
+    return _handle_url(get_ping_command)
 
 @app.route('/static/<path:path>')
 def render_static(path):

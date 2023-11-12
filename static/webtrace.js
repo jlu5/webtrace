@@ -29,7 +29,14 @@ async function runTrace() {
     const target = document.getElementById("target_input").value;
     console.debug(`Starting trace to ${target}`);
 
-    const response = await fetch(`/trace?target=${encodeURIComponent(target)}`)
+    const action = document.querySelector('input[name="action"]:checked');
+    if (!action) {
+        status.classList = "status-error";
+        status.innerText = `ERROR: No action specified`;
+        return;
+    }
+
+    const response = await fetch(`/${action.value}?target=${encodeURIComponent(target)}`)
 
     if (!response.ok) {
         traceFinished = true;

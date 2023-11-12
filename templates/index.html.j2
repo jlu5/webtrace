@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-{% set page_title = 'WebTrace - Interactive Traceroute' %}
+{% set page_title = 'WebTrace' %}
 {% include "head.html.j2" %}
 
 <body onload="doInit()">
 <script src="static/webtrace.js"></script>
 
 <div class="main">
-<h1>WebTrace - Interactive Traceroute</h1>
-<label for="target">Target for traceroute:</label>
+<h1>WebTrace - Interactive Ping & Traceroute</h1>
+Action:
+<input type="radio" id="action_trace" name="action" value="trace" checked onkeypress="onInputKeyPress(event)">
+<label for="action_trace">Traceroute</label>
+<input type="radio" id="action_ping" name="action" value="ping" onkeypress="onInputKeyPress(event)">
+<label for="action_ping">Ping</label>
+<br>
+
+<label for="target">Target:</label>
 <input type="text" id="target_input" name="target"
        placeholder="e.g. 172.20.0.53" onkeypress="onInputKeyPress(event)">
+<br>
 <button onclick="runTrace()">Submit</button>
 <button onclick="stopTrace(true)">Stop</button>
 
