@@ -30,9 +30,6 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
-def render_error(error_str=None):
-    return flask.render_template('error.html.j2', error=error_str)
-
 @app.route("/")
 @limiter.exempt
 def index():
