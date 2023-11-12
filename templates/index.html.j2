@@ -8,6 +8,10 @@
 
 <div class="main">
 <h1>WebTrace - Interactive Ping & Traceroute</h1>
+{% if serverinfo|default(None) %}
+Server Info: <b>{{ serverinfo }}</b>
+<br>
+{% endif %}
 Action:
 <input type="radio" id="action_trace" name="action" value="trace" checked onkeypress="onInputKeyPress(event)">
 <label for="action_trace">Traceroute</label>
@@ -44,7 +48,7 @@ Action:
     </li>
     <li>
     <code><a href="mtr?target=8.8.8.8">/mtr?target=8.8.8.8</a></code>
-    - mtr to the specified target (output using mtr <a href="https://github.com/traviscross/mtr/blob/master/FORMATS">"split" format</a>)
+    - mtr to the specified target (output using mtr's <a href="https://github.com/traviscross/mtr/blob/master/FORMATS">"split" format</a>)
     </li>
 </ul>
 <p>All actions support HTTP streaming - try reading them in curl or wget!</p>
