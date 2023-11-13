@@ -14,7 +14,7 @@ app = flask.Flask(__name__)
 
 streamedprocess = StreamedSubprocess()
 
-logger = logging.getLogger('webtraceroute')
+logger = logging.getLogger('webtrace')
 logging.basicConfig(level=logging.DEBUG)
 
 MTR_COUNT = int(os.environ.get('WEBTRACE_MTRCOUNT', 10))

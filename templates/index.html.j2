@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-{% set page_title = 'WebTrace' %}
+{% set page_title = 'webtrace' %}
 {% include "head.html.j2" %}
 
 <body onload="doInit()">
 <script src="static/webtrace.js"></script>
 
 <div class="main">
-<h1>WebTrace - Interactive Ping & Traceroute</h1>
+<h1>webtrace - Interactive Ping & Traceroute</h1>
 {% if serverinfo|default(None) %}
 Server Info: <b>{{ serverinfo }}</b>
 <br>
