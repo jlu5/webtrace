@@ -125,7 +125,7 @@ async function runTrace() {
         ]);
     }
 
-    const response = await fetch(`/${action}?target=${encodeURIComponent(target)}`)
+    const response = await fetch(`${action}?target=${encodeURIComponent(target)}`);
 
     if (!response.ok) {
         traceFinished = true;
