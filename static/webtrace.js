@@ -9,17 +9,24 @@ const updateWorkingStatus = () => {
 }
 let activeLoop = null;
 
-async function stopTrace(updateStatus) {
+async function stopTrace(keepOutput) {
     if (activeLoop) {
         console.debug(`Clearing old trace loop ${activeLoop}`);
         clearInterval(activeLoop);
         activeLoop = null;
-        if (updateStatus) {
+        if (keepOutput) {
             const status = document.getElementById("status");
             status.classList = "status-error";
             status.innerText = "Aborted";
         }
     }
+    if (!keepOutput) {
+        const mtrOutputContainer = document.getElementById('mtr_output');
+        mtrOutputContainer.textContent = '';
+        const output = document.getElementById("output");
+        output.textContent = '';
+    }
+
 }
 
 const MTR_MAX_HOPS = 30;
@@ -117,14 +124,6 @@ async function runTrace() {
     action = action.value;
     console.debug(`Starting ${action} to ${target}`);
     const mtrOutputContainer = document.getElementById('mtr_output');
-    mtrOutputContainer.textContent = '';
-    if (action == "mtr") {
-        mtrContext = new MtrContext();
-        addMtrRow(mtrOutputContainer, 0, [
-            "Hop#", "Hostname/IP", "Loss%", "Sent", "Last", "Avg", "Best", "Worst"
-        ]);
-    }
-
     const response = await fetch(`${action}?target=${encodeURIComponent(target)}`);
 
     if (!response.ok) {
@@ -134,12 +133,18 @@ async function runTrace() {
         await stopTrace(false);
         return;
     }
-    output.innerText = "";
 
     status.classList = "status-working";
     status.innerText = "Working";
     await stopTrace(false);
     const thisLoop = activeLoop = setInterval(updateWorkingStatus, 200);
+
+    if (action == "mtr") {
+        mtrContext = new MtrContext();
+        addMtrRow(mtrOutputContainer, 0, [
+            "Hop#", "Hostname/IP", "Loss%", "Sent", "Last", "Avg", "Best", "Worst"
+        ]);
+    }
 
     for await (const buf of response.body) {
         if (activeLoop != thisLoop) {
