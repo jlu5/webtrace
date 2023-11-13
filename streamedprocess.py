@@ -55,7 +55,7 @@ class StreamedSubprocess():
         """
         Run a command, with lines generated as they are read from the subprocess
         """
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
                               encoding='utf-8') as process:
             proc_status = StreamedSubprocessStatus(process)
             self._add_process(proc_status, timeout)
