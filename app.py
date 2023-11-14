@@ -21,6 +21,7 @@ MTR_COUNT = int(os.environ.get('WEBTRACE_MTRCOUNT', 10))
 PING_COUNT = int(os.environ.get('WEBTRACE_PINGCOUNT', 4))
 RATELIMIT = os.environ.get('WEBTRACE_RATELIMIT', "10/minute")
 SERVERINFO = os.environ.get('WEBTRACE_SERVERINFO')
+TITLE = os.environ.get('WEBTRACE_TITLE', 'webtrace')
 TIMEOUT = int(os.environ.get('WEBTRACE_TIMEOUT', 30))
 
 limiter = Limiter(
@@ -33,7 +34,7 @@ limiter = Limiter(
 @app.route("/")
 @limiter.exempt
 def index():
-    return flask.render_template('index.html.j2', serverinfo=SERVERINFO)
+    return flask.render_template('index.html.j2', page_title=TITLE, serverinfo=SERVERINFO)
 
 def run_streamed_process(target):
     try:
