@@ -2,6 +2,7 @@
 """Streaming web frontend to traceroute"""
 import logging
 import os
+import shutil
 import subprocess
 
 import flask
@@ -63,6 +64,8 @@ def get_mtr_command(target):
 def _handle_url(get_command_func):
     if target := flask.request.args.get('target'):
         cmd = get_command_func(target)
+        if not shutil.which(cmd[0]):
+            return f'ERROR: {cmd[0]} is not available on this server', 422
         return run_streamed_process(cmd), {"Content-Type": "text/plain"}
     return 'ERROR: No target specified', 400
 
