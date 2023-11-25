@@ -133,7 +133,7 @@ async function runTrace() {
     let action = document.querySelector('input[name="action"]:checked');
     if (!action) {
         status.classList = "status-error";
-        status.innerText = `ERROR: No action specified`;
+        status.innerText = `Error: No action specified`;
         return;
     }
     action = action.value;
@@ -144,8 +144,9 @@ async function runTrace() {
     if (!response.ok) {
         traceFinished = true;
         status.classList = "status-error";
-        status.innerText = `ERROR: ${response.status} ${response.statusText}`;
+        status.innerText = `Error: ${response.status} ${response.statusText}`;
         await stopTrace(false);
+        output.innerText = await response.text();
         return;
     }
 
