@@ -1,0 +1,23 @@
+[Unit]
+Description=webtrace gunicorn
+Requires=webtrace.socket
+After=network.target
+
+[Service]
+Type=notify
+#User=webtrace
+#Group=webtrace
+RuntimeDirectory=gunicorn
+# Source repo directory
+WorkingDirectory=/opt/webtrace
+# Replace /opt/webtrace-venv with your Virtualenv directory
+ExecStart=/opt/webtrace-venv/bin/gunicorn -k gevent --pythonpath=. app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+Environment=WEBTRACE_SERVERINFO="a webtrace server"
+Environment=WEBTRACE_TITLE="webtrace"
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=webtrace gunicorn socket
+
+[Socket]
+ListenStream=/run/webtrace.sock
+SocketUser=www-data
+
+[Install]
+WantedBy=sockets.target
