@@ -110,7 +110,7 @@ function parseMtr(mtrSplitLine) {
     addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
 }
 
-const READ_TIMEOUT = 5 * 1000;
+const READ_TIMEOUT = 3 * 1000;
 async function runTrace() {
     const output = document.getElementById("output");
     const status = document.getElementById("status");
@@ -125,7 +125,26 @@ async function runTrace() {
     action = action.value;
     console.debug(`Starting ${action} to ${target}`);
     const mtrOutputContainer = document.getElementById('mtr_output');
-    const response = await fetch(`${action}?target=${encodeURIComponent(target)}`);
+
+    const abortController = new AbortController();
+    const fetchTimeoutWatcher = setTimeout(() => abortController.abort(), READ_TIMEOUT);
+    let response;
+    try {
+        response = await fetch(`${action}?target=${encodeURIComponent(target)}`,
+            {signal: abortController.signal} );
+    } catch (e) {
+        console.log(`fetch error: ${e}`);
+        status.classList = "status-error";
+        if (e instanceof DOMException && e.name == "AbortError") {
+            status.innerText = "Timeout";
+            output.innerText += "TIMEOUT: fetch timed out. Please check that webtrace is running behind an unbuffered web server!";
+        } else {
+            status.innerText = "Error";
+            output.innerText += `ERROR: ${e}`;
+        }
+        return;
+    }
+    clearTimeout(fetchTimeoutWatcher);
 
     if (!response.ok) {
         traceFinished = true;
