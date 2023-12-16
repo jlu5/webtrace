@@ -9,21 +9,6 @@ const updateWorkingStatus = () => {
 }
 let activeLoop = null;
 
-// Polyfill for `for await`, from https://bugs.chromium.org/p/chromium/issues/detail?id=929585#c10
-ReadableStream.prototype[Symbol.asyncIterator] = async function* () {
-    const reader = this.getReader()
-    try {
-      while (true) {
-        const {done, value} = await reader.read()
-        if (done) return
-        yield value
-      }
-    }
-    finally {
-      reader.releaseLock()
-    }
-  }
-
 async function stopTrace(keepOutput) {
     if (activeLoop) {
         console.debug(`Clearing old trace loop ${activeLoop}`);
@@ -125,6 +110,7 @@ function parseMtr(mtrSplitLine) {
     addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
 }
 
+const READ_TIMEOUT = 5 * 1000;
 async function runTrace() {
     const output = document.getElementById("output");
     const status = document.getElementById("status");
@@ -162,24 +148,37 @@ async function runTrace() {
         ]);
     }
 
-    for await (const buf of response.body) {
-        if (activeLoop != thisLoop) {
-            console.debug(`Stopping old trace loop ${thisLoop} for ${target}`);
-            return;
-        }
-        const str = String.fromCharCode(...buf);
-        if (action == "mtr") {
-            for (let line of str.split('\n')) {
-                console.log("mtr line", line);
-                if (/^\d+? /.test(line)) {
-                    parseMtr(line);
-                } else if (line.trim()) {
-                    output.innerText += line;
-                    output.innerText += '\n';
-                }
+    let reader = response.body.getReader();
+    while (true) {
+        let timeoutWatcher = setTimeout(() => reader.releaseLock(), READ_TIMEOUT);
+        try {
+            let {done: readerDone, value: buf} = await reader.read();
+            clearTimeout(timeoutWatcher);
+            if (activeLoop != thisLoop) {
+                console.debug(`Stopping old trace loop ${thisLoop} for ${target}`);
+                return;
             }
-        } else {
-            output.innerText += str;
+            if (readerDone) {
+                break;
+            }
+            const str = String.fromCharCode(...buf);
+            if (action == "mtr") {
+                for (let line of str.split('\n')) {
+                    console.log("mtr line", line);
+                    if (/^\d+? /.test(line)) {
+                        parseMtr(line);
+                    } else if (line.trim()) {
+                        output.innerText += line;
+                        output.innerText += '\n';
+                    }
+                }
+            } else {
+                output.innerText += str;
+            }
+        } catch (e) {
+            console.log("Exiting read loop:", e);
+            reader = response.body.getReader();
+            continue;
         }
     }
     clearInterval(activeLoop);
