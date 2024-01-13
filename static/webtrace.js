@@ -167,6 +167,7 @@ async function runTrace() {
         ]);
     }
 
+    const textDecoder = new TextDecoder();
     let reader = response.body.getReader();
     while (true) {
         let timeoutWatcher = setTimeout(() => reader.releaseLock(), READ_TIMEOUT);
@@ -180,7 +181,7 @@ async function runTrace() {
             if (readerDone) {
                 break;
             }
-            const str = String.fromCharCode(...buf);
+            const str = textDecoder.decode(buf);
             if (action == "mtr") {
                 for (let line of str.split('\n')) {
                     console.log("mtr line", line);
