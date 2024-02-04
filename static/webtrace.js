@@ -124,7 +124,11 @@ async function runTrace() {
     }
     action = action.value;
     console.debug(`Starting ${action} to ${target}`);
-    const mtrOutputContainer = document.getElementById('mtr_output');
+
+    // Update the history with the current action & target
+    const newState = {action: action, target: target};
+    const newParams = new URLSearchParams(newState);
+    history.pushState(newState, '', `?${newParams.toString()}`);
 
     const abortController = new AbortController();
     const fetchTimeoutWatcher = setTimeout(() => abortController.abort(), READ_TIMEOUT);
@@ -161,6 +165,7 @@ async function runTrace() {
     const thisLoop = activeLoop = setInterval(updateWorkingStatus, 200);
 
     if (action == "mtr") {
+        const mtrOutputContainer = document.getElementById('mtr_output');
         mtrContext = new MtrContext();
         addMtrRow(mtrOutputContainer, 0, [
             "Hop#", "Hostname/IP", "Loss%", "Sent", "Last", "Avg", "Best", "Worst"
