@@ -224,6 +224,12 @@ async function onInputKeyPress(event) {
 async function doInit() {
     const urlParams = new URLSearchParams(window.location.search);
     const target = urlParams.get('target');
+    const action = urlParams.get('action');
+    if (action) {
+        for (const radioBtn of document.querySelectorAll('input[name="action"]')) {
+            radioBtn.checked = radioBtn.value == action.toLowerCase();
+        }
+    }
     if (target) {
         const targetInput = document.getElementById("target_input");
         targetInput.value = target;
