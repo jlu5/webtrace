@@ -110,7 +110,7 @@ function parseMtr(mtrSplitLine) {
     addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
 }
 
-const READ_TIMEOUT = 3 * 1000;
+const READ_TIMEOUT = 5 * 1000;
 async function runTrace() {
     const output = document.getElementById("output");
     const status = document.getElementById("status");
@@ -130,6 +130,11 @@ async function runTrace() {
     const newParams = new URLSearchParams(newState);
     history.pushState(newState, '', `?${newParams.toString()}`);
 
+    status.classList = "status-working";
+    status.innerText = "Working";
+    await stopTrace(false);
+    const thisLoop = activeLoop = setInterval(updateWorkingStatus, 200);
+
     const abortController = new AbortController();
     const fetchTimeoutWatcher = setTimeout(() => abortController.abort(), READ_TIMEOUT);
     let response;
@@ -141,11 +146,12 @@ async function runTrace() {
         status.classList = "status-error";
         if (e instanceof DOMException && e.name == "AbortError") {
             status.innerText = "Timeout";
-            output.innerText += "TIMEOUT: fetch timed out. Please check that webtrace is running behind an unbuffered web server!";
+            output.innerText += "TIMEOUT: fetch timed out.";
         } else {
             status.innerText = "Error";
             output.innerText += `ERROR: ${e}`;
         }
+        await stopTrace(true);
         return;
     }
     clearTimeout(fetchTimeoutWatcher);
@@ -158,11 +164,6 @@ async function runTrace() {
         output.innerText = await response.text();
         return;
     }
-
-    status.classList = "status-working";
-    status.innerText = "Working";
-    await stopTrace(false);
-    const thisLoop = activeLoop = setInterval(updateWorkingStatus, 200);
 
     if (action == "mtr") {
         const mtrOutputContainer = document.getElementById('mtr_output');
