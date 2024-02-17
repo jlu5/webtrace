@@ -127,6 +127,18 @@ function parseMtr(mtrSplitLine) {
     addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
 }
 
+function maybeUpdateHistory(newAction, newTarget) {
+    // Update the history with the current action & target if it's different
+    const urlParams = new URLSearchParams(window.location.search);
+    const currTarget = urlParams.get('target');
+    const currAction = urlParams.get('action');
+    if (currTarget != newTarget || currAction != newAction) {
+        const newState = {action: newAction, target: newTarget};
+        const newParams = new URLSearchParams(newState);
+        history.pushState(newState, '', `?${newParams.toString()}`);
+    }
+}
+
 const READ_TIMEOUT = 5 * 1000;
 async function runTrace() {
     const output = document.getElementById("output");
@@ -141,11 +153,7 @@ async function runTrace() {
     }
     action = action.value;
     console.debug(`Starting ${action} to ${target}`);
-
-    // Update the history with the current action & target
-    const newState = {action: action, target: target};
-    const newParams = new URLSearchParams(newState);
-    history.pushState(newState, '', `?${newParams.toString()}`);
+    maybeUpdateHistory(action, target);
 
     status.classList = "status-working";
     status.innerText = "Working";
