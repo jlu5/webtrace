@@ -65,6 +65,20 @@ function addMtrRow(parent, index, cells) {
     }
 }
 
+function renderMtrHost(host) {
+    // Render the host in a span that supports copy-on-click
+    const span = document.createElement('span');
+    span.classList.add('copyable');
+    span.title = 'Click to set new target';
+    span.addEventListener('click', () => {
+        // navigator.clipboard.writeText(span.textContent);
+        document.getElementById("target_input").value = span.textContent;
+    } );
+    const textNode = document.createTextNode(host);
+    span.appendChild(textNode);
+    return span;
+}
+
 function parseMtr(mtrSplitLine) {
     // This uses the mtr "split" format with IPs (mtr -p -b), as documented at
     // https://github.com/traviscross/mtr/blob/master/FORMATS
@@ -95,16 +109,19 @@ function parseMtr(mtrSplitLine) {
 
     let first = true;
     for (const [ip, host] of mtrContext.seenHopsPerIndex[hopIndex].entries()) {
-        let displayedHost = host;
-        if (ip != host) {
-            displayedHost = `${host} [${ip}]`;
-        }
-        const textNode = document.createTextNode(displayedHost);
         if (!first) {
             allHosts.appendChild(document.createElement('br'));
         }
         first = false;
-        allHosts.appendChild(textNode);
+
+        const hostSpan = renderMtrHost(host);
+        allHosts.appendChild(hostSpan);
+        if (host != ip) {
+            const ipSpan = renderMtrHost(ip);
+            allHosts.appendChild(document.createTextNode(' ['));
+            allHosts.appendChild(ipSpan);
+            allHosts.appendChild(document.createTextNode(']'));
+        }
     }
 
     addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
