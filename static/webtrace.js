@@ -53,6 +53,7 @@ function addMtrRow(parent, index, cells) {
         parent.appendChild(row);
     }
     row.textContent = '';
+    row.classList.remove('mtr-stale-hop');
     for (let cell of cells) {
         const td = document.createElement(index ? "td" : "th");
         if (cell instanceof Element) {
@@ -86,12 +87,22 @@ function parseMtr(mtrSplitLine) {
         console.error(`mtrContext null, line: ${mtrSplitLine}`);
         return;
     }
+    const mtrOutput = document.getElementById('mtr_output');
     const parts = mtrSplitLine.split(' ');
 
     let i = 0;
     // mtr report format for reference:
     // HOST: xxxxxx Loss%   Snt   Last   Avg  Best  Wrst StDev
     const hopIndex = parts[i++];
+    if (hopIndex < 0) {
+        // A negative hop index means to hide the corresponding line
+        let row = mtrOutput.children[hopIndex * -1];
+        if (row) {
+            console.log(`Greying out row ${hopIndex * -1}`);
+            row.classList.add('mtr-stale-hop');
+        }
+        return;
+    }
     const hostname = parts[i++];
     const ip = parts[i++];
     const lossPct = (parts[i++] / 1000).toString() + '%';
@@ -101,12 +112,13 @@ function parseMtr(mtrSplitLine) {
     const avgRtt = parts[i++];
     const worstRtt = parts[i++];
 
+    if (!mtrContext.seenHopsPerIndex[hopIndex]) {
+        return;
+    }
     mtrContext.seenHopsPerIndex[hopIndex].set(ip, hostname);
-
-    // Render the line
-    let mtrOutput = document.getElementById('mtr_output');
     const allHosts = document.createElement('div');
 
+    // Render a line including all hosts seen for this hop so far (e.g. due to ECMP)
     let first = true;
     for (const [ip, host] of mtrContext.seenHopsPerIndex[hopIndex].entries()) {
         if (!first) {
@@ -215,8 +227,8 @@ async function runTrace() {
             const str = textDecoder.decode(buf);
             if (action == "mtr") {
                 for (let line of str.split('\n')) {
-                    console.log("mtr line", line);
-                    if (/^\d+? /.test(line)) {
+                    console.log("mtr line:", JSON.stringify(line));
+                    if (/^-?\d+( |$)/.test(line)) {
                         parseMtr(line);
                     } else if (line.trim()) {
                         output.innerText += line;

@@ -29,3 +29,7 @@
     text-decoration-color: gray;
     cursor: pointer;
 }
+
+.mtr-stale-hop {
+    color: #555;
+}
