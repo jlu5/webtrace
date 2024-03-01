@@ -44,7 +44,8 @@ def index():
         'index.html.j2',
         page_title=TITLE,
         serverinfo=SERVERINFO,
-        version_git=version_git)
+        version_git=version_git,
+        embed=flask.request.args.get("embed"))
 
 def run_streamed_process(target):
     try:

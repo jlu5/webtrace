@@ -6,11 +6,15 @@
 <script src="static/webtrace.js"></script>
 
 <div class="main">
+{% if not embed %}
 <h1>webtrace - Interactive Ping & Traceroute</h1>
+{% endif %}
 {% if serverinfo|default(None) %}
 Server Info: <b>{{ serverinfo }}</b>
 <br>
 {% endif %}
+
+<div id="control">
 Action:
 <input type="radio" id="action_trace" name="action" value="trace" checked onkeypress="onInputKeyPress(event)">
 <label for="action_trace">Traceroute</label>
@@ -26,6 +30,7 @@ Action:
 
 <button onclick="runTrace()">Submit</button>
 <button onclick="stopTrace(true)">Stop</button>
+</div>
 
 <noscript><p class="status-error">Interactive mode requires JavaScript!</p></noscript>
 
@@ -35,6 +40,7 @@ Action:
 <table id="mtr_output"></table>
 </div>
 
+{% if not embed %}
 <h2>API documentation</h2>
 <ul>
     <li>
@@ -53,6 +59,7 @@ Action:
 <p>All actions support HTTP streaming - try reading them in curl or wget!</p>
 
 {% include "footer.html.j2" %}
+{% endif %}
 </div> <!-- main -->
 </body>
 </html>
