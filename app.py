@@ -32,10 +32,19 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
+try:
+    version_git = subprocess.check_output(['git', 'rev-parse', 'HEAD'], encoding='utf-8').strip()
+except subprocess.CalledProcessError:
+    version_git = None
+
 @app.route("/")
 @limiter.exempt
 def index():
-    return flask.render_template('index.html.j2', page_title=TITLE, serverinfo=SERVERINFO)
+    return flask.render_template(
+        'index.html.j2',
+        page_title=TITLE,
+        serverinfo=SERVERINFO,
+        version_git=version_git)
 
 def run_streamed_process(target):
     try:

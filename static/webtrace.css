@@ -30,6 +30,6 @@
     cursor: pointer;
 }
 
-.mtr-stale-hop {
+.mtr-stale-hop, .footer {
     color: #555;
 }
