@@ -4,6 +4,7 @@
 
 <body onload="doInit()">
 <script src="static/webtrace.js"></script>
+<script src="static/webtrace-common.js"></script>
 
 <div class="main">
 {% if not embed %}
@@ -14,23 +15,7 @@ Server Info: <b>{{ serverinfo }}</b>
 <br>
 {% endif %}
 
-<div id="control">
-Action:
-<input type="radio" id="action_trace" name="action" value="trace" checked onkeypress="onInputKeyPress(event)">
-<label for="action_trace">Traceroute</label>
-<input type="radio" id="action_ping" name="action" value="ping" onkeypress="onInputKeyPress(event)">
-<label for="action_ping">Ping</label>
-<input type="radio" id="action_ping" name="action" value="mtr" onkeypress="onInputKeyPress(event)">
-<label for="action_mtr">mtr (beta)</label>
-<br>
-
-<label for="target">Target:</label>
-<input type="text" id="target_input" name="target"
-       placeholder="e.g. google.com" onkeypress="onInputKeyPress(event)">
-
-<button onclick="runTrace()">Submit</button>
-<button onclick="stopTrace(true)">Stop</button>
-</div>
+{% include "control.html.j2" %}
 
 <noscript><p class="status-error">Interactive mode requires JavaScript!</p></noscript>
 

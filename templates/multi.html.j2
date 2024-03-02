@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+{% include "head.html.j2" %}
+
+<body onload="doInit()">
+<h1>Webtrace-multi</h1>
+<script src="static/webtrace-multi.js"></script>
+<script src="static/webtrace-common.js"></script>
+
+{% include "control.html.j2" %}
+<br>
+
+<div class="flex-container">
+{% for backend in multi_backends %}
+<iframe class="webtrace-backend" data-baseurl="{{ backend }}"></iframe>
+{% endfor %}
+</div>
+</body>
+</html>

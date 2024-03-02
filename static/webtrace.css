@@ -33,3 +33,18 @@
 .mtr-stale-hop, .footer {
     color: #555;
 }
+
+/* Styles for multi mode */
+.flex-container {
+    display: flex;
+    align-content: flex-start;
+    justify-content: start;
+    flex-wrap: wrap;
+}
+
+.flex-container > iframe {
+    width: 90vw;
+    max-width: 650px;
+    height: 40vh;
+    max-height: 600px;
+}

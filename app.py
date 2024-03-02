@@ -23,7 +23,9 @@ PING_COUNT = int(os.environ.get('WEBTRACE_PINGCOUNT', 4))
 RATELIMIT = os.environ.get('WEBTRACE_RATELIMIT', "10/minute")
 SERVERINFO = os.environ.get('WEBTRACE_SERVERINFO')
 TITLE = os.environ.get('WEBTRACE_TITLE', 'webtrace')
+TITLE_MULTI = os.environ.get('WEBTRACE_TITLE_MULTI', 'webtrace-multi')
 TIMEOUT = int(os.environ.get('WEBTRACE_TIMEOUT', 30))
+MULTI_BACKENDS = os.environ.get('WEBTRACE_MULTI_BACKENDS', '').split()
 
 limiter = Limiter(
     get_remote_address,
@@ -45,7 +47,21 @@ def index():
         page_title=TITLE,
         serverinfo=SERVERINFO,
         version_git=version_git,
+        multi=False,
         embed=flask.request.args.get("embed"))
+
+@app.route("/multi")
+@limiter.exempt
+def multi():
+    if not MULTI_BACKENDS:
+        return "ERROR: No backends configured for multi mode", 404
+    return flask.render_template(
+        'multi.html.j2',
+        page_title=TITLE_MULTI,
+        serverinfo=SERVERINFO,
+        multi_backends=MULTI_BACKENDS,
+        multi=True,
+        version_git=version_git)
 
 def run_streamed_process(target):
     try:

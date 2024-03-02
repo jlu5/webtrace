@@ -139,18 +139,6 @@ function parseMtr(mtrSplitLine) {
     addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
 }
 
-function maybeUpdateHistory(newAction, newTarget) {
-    // Update the history with the current action & target if it's different
-    const urlParams = new URLSearchParams(window.location.search);
-    const currTarget = urlParams.get('target');
-    const currAction = urlParams.get('action');
-    if (currTarget != newTarget || currAction != newAction) {
-        const newState = {action: newAction, target: newTarget};
-        const newParams = new URLSearchParams(newState);
-        history.pushState(newState, '', `?${newParams.toString()}`);
-    }
-}
-
 const READ_TIMEOUT = 5 * 1000;
 async function runTrace() {
     const output = document.getElementById("output");
@@ -256,26 +244,4 @@ async function runTrace() {
         status.innerText = "Finished";
     }
     activeLoop = null;
-}
-
-async function onInputKeyPress(event) {
-    if (event.keyCode == 13) {
-        await runTrace();
-    }
-}
-
-async function doInit() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const target = urlParams.get('target');
-    const action = urlParams.get('action');
-    if (action) {
-        for (const radioBtn of document.querySelectorAll('input[name="action"]')) {
-            radioBtn.checked = radioBtn.value == action.toLowerCase();
-        }
-    }
-    if (target) {
-        const targetInput = document.getElementById("target_input");
-        targetInput.value = target;
-        await runTrace();
-    }
 }
