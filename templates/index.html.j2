@@ -21,13 +21,21 @@ Action:
 <input type="radio" id="action_ping" name="action" value="ping" onkeypress="onInputKeyPress(event)">
 <label for="action_ping">Ping</label>
 <input type="radio" id="action_ping" name="action" value="mtr" onkeypress="onInputKeyPress(event)">
-<label for="action_mtr">mtr (beta)</label>
+<label for="action_mtr">mtr</label>
 <br>
 
 <label for="target">Target:</label>
 <input type="text" id="target_input" name="target"
        placeholder="e.g. google.com" onkeypress="onInputKeyPress(event)">
 
+<input type="radio" id="aftype_default" name="aftype" value="" checked onkeypress="onInputKeyPress(event)">
+<label for="aftype_default">Default</label>
+<input type="radio" id="aftype_ipv4" name="aftype" value="ipv4" onkeypress="onInputKeyPress(event)">
+<label for="aftype_ipv4">IPv4</label>
+<input type="radio" id="aftype_ipv6" name="aftype" value="ipv6" onkeypress="onInputKeyPress(event)">
+<label for="aftype_ipv6">IPv6</label>
+
+<br>
 <button onclick="runTrace()">Submit</button>
 <button onclick="stopTrace(true)">Stop</button>
 </div>

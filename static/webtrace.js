@@ -139,13 +139,14 @@ function parseMtr(mtrSplitLine) {
     addMtrRow(mtrOutput, hopIndex, [hopIndex, allHosts, lossPct, rcvdPkts, sentPkts, bestRtt, avgRtt, worstRtt]);
 }
 
-function maybeUpdateHistory(newAction, newTarget) {
+function maybeUpdateHistory(newAction, newTarget, newAftype) {
     // Update the history with the current action & target if it's different
     const urlParams = new URLSearchParams(window.location.search);
     const currTarget = urlParams.get('target');
     const currAction = urlParams.get('action');
-    if (currTarget != newTarget || currAction != newAction) {
-        const newState = {action: newAction, target: newTarget};
+    const currAftype = urlParams.get('aftype');
+    if (currTarget != newTarget || currAction != newAction || currAftype != newAftype) {
+        const newState = {action: newAction, target: newTarget, aftype: newAftype};
         const newParams = new URLSearchParams(newState);
         history.pushState(newState, '', `?${newParams.toString()}`);
     }
@@ -164,8 +165,12 @@ async function runTrace() {
         return;
     }
     action = action.value;
-    console.debug(`Starting ${action} to ${target}`);
-    maybeUpdateHistory(action, target);
+
+    let aftype = document.querySelector('input[name="aftype"]:checked');
+    aftype = aftype ? aftype.value : "";
+
+    console.debug(`Starting ${action} to ${target} (aftype ${aftype})`);
+    maybeUpdateHistory(action, target, aftype);
 
     status.classList = "status-working";
     status.innerText = "Working";
@@ -176,7 +181,8 @@ async function runTrace() {
     const fetchTimeoutWatcher = setTimeout(() => abortController.abort(), READ_TIMEOUT);
     let response;
     try {
-        response = await fetch(`${action}?target=${encodeURIComponent(target)}`,
+        response = await fetch(
+            `${action}?target=${encodeURIComponent(target)}&aftype=${encodeURIComponent(aftype)}`,
             {signal: abortController.signal} );
     } catch (e) {
         console.log(`fetch error: ${e}`);
@@ -268,11 +274,17 @@ async function doInit() {
     const urlParams = new URLSearchParams(window.location.search);
     const target = urlParams.get('target');
     const action = urlParams.get('action');
+    const aftype = urlParams.get('aftype');
+    console.log('doInit', urlParams);
     if (action) {
         for (const radioBtn of document.querySelectorAll('input[name="action"]')) {
             radioBtn.checked = radioBtn.value == action.toLowerCase();
         }
     }
+    for (const radioBtn of document.querySelectorAll('input[name="aftype"]')) {
+        radioBtn.checked = radioBtn.value == aftype.toLowerCase();
+    }
+
     if (target) {
         const targetInput = document.getElementById("target_input");
         targetInput.value = target;

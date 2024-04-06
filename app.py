@@ -58,22 +58,58 @@ def run_streamed_process(target):
         logger.exception(e)
         yield f'\nERROR: {e.cmd[0]} exited with status {e.returncode}'
 
-def get_trace_command(target):
+def get_trace_command(target, force_aftype=None):
+    cmd = []
     if os.name == 'nt':
-        return ['tracert', target]
-    return ['traceroute', '--', target]
+        cmd.append('tracert')
+    else:
+        cmd.append('traceroute')
 
-def get_ping_command(target):
+    if force_aftype == 6:
+        cmd.append('-6')
+    elif force_aftype == 4:
+        cmd.append('-4')
+    if os.name != 'nt':
+        cmd.append('--')
+    cmd.append(target)
+    return cmd
+
+def get_ping_command(target, force_aftype=None):
+    cmd = ['ping']
     if os.name == 'nt':
-        return ['ping', '-n', str(PING_COUNT), target]
-    return ['ping', '-c', str(PING_COUNT), '--', target]
+        cmd += ['-n', str(PING_COUNT)]
+    else:
+        cmd += ['-c', str(PING_COUNT)]
+    if force_aftype == 6:
+        cmd.append('-6')
+    elif force_aftype == 4:
+        cmd.append('-4')
+    if os.name != 'nt':
+        cmd.append('--')
+    cmd.append(target)
+    return cmd
 
-def get_mtr_command(target):
-    return ['mtr', '-p', '-b', '-c', str(MTR_COUNT), '--', target]
+def get_mtr_command(target, force_aftype=None):
+    cmd = ['mtr', '-p', '-b', '-c', str(MTR_COUNT)]
+    if force_aftype == 6:
+        cmd.append('-6')
+    elif force_aftype == 4:
+        cmd.append('-4')
+    if os.name != 'nt':
+        cmd.append('--')
+    cmd.append(target)
+    return cmd
 
 def _handle_url(get_command_func):
     if target := flask.request.args.get('target'):
-        cmd = get_command_func(target)
+        aftype = flask.request.args.get('aftype')
+        force_aftype = None
+        if aftype == 'ipv6':
+            force_aftype = 6
+        elif aftype == 'ipv4':
+            force_aftype = 4
+
+        cmd = get_command_func(target, force_aftype=force_aftype)
         if not shutil.which(cmd[0]):
             return f'ERROR: {cmd[0]} is not available on this server', 422
         return run_streamed_process(cmd), {"Content-Type": "text/plain"}
