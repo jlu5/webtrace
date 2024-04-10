@@ -281,8 +281,10 @@ async function doInit() {
             radioBtn.checked = radioBtn.value == action.toLowerCase();
         }
     }
-    for (const radioBtn of document.querySelectorAll('input[name="aftype"]')) {
-        radioBtn.checked = radioBtn.value == aftype.toLowerCase();
+    if (aftype) {
+        for (const radioBtn of document.querySelectorAll('input[name="aftype"]')) {
+            radioBtn.checked = radioBtn.value == aftype.toLowerCase();
+        }
     }
 
     if (target) {
