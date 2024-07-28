@@ -103,7 +103,7 @@ function parseMtr(mtrSplitLine) {
     }
     const hostname = parts[i++];
     const ip = parts[i++];
-    const lossPct = (parts[i++] / 1000).toString() + '%';
+    const lossPct = Math.round(parts[i++] / 100) / 10 + '%';
     const rcvdPkts = parts[i++];
     const sentPkts = parts[i++];
     const bestRtt = parts[i++];
