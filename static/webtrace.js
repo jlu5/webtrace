@@ -91,8 +91,6 @@ function parseMtr(mtrSplitLine) {
     const parts = mtrSplitLine.split(' ');
 
     let i = 0;
-    // mtr report format for reference:
-    // HOST: xxxxxx Loss%   Snt   Last   Avg  Best  Wrst StDev
     const hopIndex = parts[i++];
     if (hopIndex < 0) {
         // A negative hop index means to hide the corresponding line
@@ -212,7 +210,7 @@ async function runTrace() {
         const mtrOutputContainer = document.getElementById('mtr_output');
         mtrContext = new MtrContext();
         addMtrRow(mtrOutputContainer, 0, [
-            "Hop#", "Hostname/IP", "Loss%", "Sent", "Last", "Avg", "Best", "Worst"
+            "Hop#", "Hostname/IP", "Loss%", "Rcvd", "Sent", "Best", "Avg", "Worst"
         ]);
     }
 
