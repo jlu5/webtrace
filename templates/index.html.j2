@@ -16,12 +16,12 @@ Server Info: <b>{{ serverinfo }}</b>
 
 <div id="control">
 Action:
-<input type="radio" id="action_trace" name="action" value="trace" checked onkeypress="onInputKeyPress(event)">
+<input type="radio" id="action_ping" name="action" value="mtr" checked onkeypress="onInputKeyPress(event)">
+<label for="action_mtr">mtr</label>
+<input type="radio" id="action_trace" name="action" value="trace" onkeypress="onInputKeyPress(event)">
 <label for="action_trace">Traceroute</label>
 <input type="radio" id="action_ping" name="action" value="ping" onkeypress="onInputKeyPress(event)">
 <label for="action_ping">Ping</label>
-<input type="radio" id="action_ping" name="action" value="mtr" onkeypress="onInputKeyPress(event)">
-<label for="action_mtr">mtr</label>
 <br>
 
 <label for="target">Target:</label>
