@@ -154,7 +154,9 @@ const READ_TIMEOUT = 5 * 1000;
 async function runTrace() {
     const output = document.getElementById("output");
     const status = document.getElementById("status");
-    const target = document.getElementById("target_input").value;
+    const target_input = document.getElementById("target_input");
+    const target = target_input.value.trim();
+    target_input.value = target;
 
     let action = document.querySelector('input[name="action"]:checked');
     if (!action) {
