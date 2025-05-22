@@ -5,8 +5,8 @@ After=network.target
 
 [Service]
 Type=notify
-#User=webtrace
-#Group=webtrace
+User=webtrace
+Group=webtrace
 RuntimeDirectory=gunicorn
 # Source repo directory
 WorkingDirectory=/opt/webtrace
