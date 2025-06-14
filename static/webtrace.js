@@ -40,11 +40,12 @@ class MtrContext {
     }
 }
 
+const _HIDDEN_HOP_TEXT = '???';
 function addMtrRow(parent, index, cells) {
     let currLength = parent.children.length;
     // mtr can skip hops - add lines for these if applicable
     while (currLength < index) {
-        addMtrRow(parent, currLength, [currLength, '*']);
+        addMtrRow(parent, currLength, [currLength, _HIDDEN_HOP_TEXT]);
         currLength++;
     }
     let row = parent.children[index];
@@ -102,6 +103,12 @@ function parseMtr(mtrSplitLine) {
         return;
     }
     const hostname = parts[i++];
+
+    if (hostname === _HIDDEN_HOP_TEXT) {
+        addMtrRow(mtrOutput, hopIndex, [hopIndex, hostname]);
+        return;
+    }
+
     const ip = parts[i++];
     const lossPct = Math.round(parts[i++] / 100) / 10 + '%';
     const rcvdPkts = parts[i++];
