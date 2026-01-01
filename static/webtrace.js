@@ -151,7 +151,10 @@ function maybeUpdateHistory(newAction, newTarget, newAftype) {
     const currAction = urlParams.get('action');
     const currAftype = urlParams.get('aftype');
     if (currTarget != newTarget || currAction != newAction || currAftype != newAftype) {
-        const newState = {action: newAction, target: newTarget, aftype: newAftype};
+        const newState = {action: newAction, target: newTarget};
+        if (newAftype) {
+            newState.aftype = newAftype;
+        }
         const newParams = new URLSearchParams(newState);
         history.pushState(newState, '', `?${newParams.toString()}`);
     }
